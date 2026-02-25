@@ -1,3 +1,10 @@
+name: Safety_Call_Japan_Final_Fix
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,30 +21,32 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Cordova
+      - name: Build Android App
         run: |
+          # تنظيف الكاش وإعداد npm للتعامل مع الأخطاء الشبكية
           npm config set fetch-retries 5
-          npm install -g cordova --no-audit --no-fund
-
-      - name: Prepare and Build
-        run: |
-          # قبول تراخيص الأندرويد (ضروري جداً)
-          yes | sdkmanager --licenses || true
+          npm config set fetch-retry-mintimeout 20000
+          npm config set fetch-retry-maxtimeout 120000
           
-          # إنشاء المشروع إذا لم يكن موجوداً
-          if [ ! -f config.xml ]; then
-            cordova create . safety.call.japan "Safety Call Japan"
-          fi
+          # تثبيت كوردوفا
+          npm install -g cordova --no-audit
           
-          # إضافة المنصة والإضافات
-          cordova platform add android@12.0.0 --save
+          # إزالة أي ملفات قديمة تسبب تعارض
+          rm -rf node_modules package-lock.json
+          
+          # إضافة المنصة مع تحديد نسخة مستقرة جداً وتجنب الفيتش المعقد
+          cordova platform add android@12.0.0 --save --verbose
+          
+          # إضافة الملحقات الأساسية
           cordova plugin add cordova-plugin-android-permissions --save
           cordova plugin add cordova-plugin-device --save
-
-          # إنشاء ملف التوقيع (لأغراض التجربة فقط هنا)
+          
+          # بناء المشروع
+          cordova prepare android
+          
+          # إنشاء مفتاح التوقيع
           keytool -genkey -v -keystore release.jks -alias safety_key -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=Zakaria, O=SafetyCallJapan" -deststoretype pkcs12
 
-          # إنشاء ملف build.json بشكل صحيح
           cat <<EOF > build.json
           {
               "android": {
@@ -45,24 +54,20 @@ jobs:
                       "keystore": "release.jks",
                       "storePassword": "123456",
                       "alias": "safety_key",
-                      "password" : "123456",
-                      "keystoreType": ""
+                      "password": "123456"
                   }
               }
           }
           EOF
 
-          # بناء التطبيق
+          # بناء APK
           cordova build android --release --buildConfig=build.json -- --packageType=apk
 
-      - name: Organize Output
-        run: |
           mkdir -p output
-          # البحث عن الـ APK في المسارات المحتملة ونسخه
-          find platforms/android/app/build/outputs/apk/release/ -name "*.apk" -exec cp {} output/Safety_Call_Japan.apk \;
+          cp platforms/android/app/build/outputs/apk/release/*.apk ./output/Safety_Call_Japan_Pro.apk
 
-      - name: Upload APK
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Safety-Call-Japan-APK
+          name: Safety-Call-Japan-Final
           path: output/
