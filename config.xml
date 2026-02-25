@@ -1,19 +1,24 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="safety.call.japan" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>Safety Call Japan</name>
-    <description>نظام حظر صامت للمكالمات الدولية</description>
-    <author email="zakaria@example.com">Zakaria</author>
+    <description>نظام حظر المكالمات الدولية</description>
     
     <content src="index.html" />
-    <access origin="*" />
     
-    <preference name="AndroidXEnabled" value="true" />
-    <preference name="android-minSdkVersion" value="29" /> <!-- نحتاج نسخة 29 على الأقل لخدمة CallScreening -->
-    <preference name="android-targetSdkVersion" value="34" />
+    <!-- 1. أضف سطر البلجن هنا -->
+    <plugin name="cordova-plugin-android-permissions" spec="^1.1.5" />
+    <plugin name="cordova-plugin-device" spec="^2.1.0" />
 
     <platform name="android">
+        <!-- 2. أضف صلاحيات أندرويد الرسمية هنا لضمان قبول المتجر لها -->
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+            <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
+            <uses-permission android:name="android.permission.READ_CALL_LOG" />
+        </config-file>
+
+        <!-- 3. إعدادات خدمة فحص المكالمات (Call Screening) -->
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
-            <!-- تعريف الخدمة التي تعمل في الخلفية دائماً لرصد المكالمات -->
             <service android:name="com.cordova.plugins.CallScreeningImplementation"
                      android:permission="android.permission.BIND_SCREENING_SERVICE"
                      android:exported="true">
@@ -22,11 +27,8 @@
                 </intent-filter>
             </service>
         </config-file>
-
-        <config-file target="AndroidManifest.xml" parent="/*">
-            <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-            <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
-            <uses-permission android:name="android.permission.READ_CALL_LOG" />
-        </config-file>
     </platform>
+
+    <preference name="android-minSdkVersion" value="29" />
+    <preference name="android-targetSdkVersion" value="34" />
 </widget>
