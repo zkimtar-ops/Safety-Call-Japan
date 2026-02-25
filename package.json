@@ -1,1 +1,21 @@
-
+{
+  "name": "safety.call.japan",
+  "displayName": "Safety Call Japan",
+  "version": "1.0.0",
+  "description": "Real Call Blocker App",
+  "main": "index.js",
+  "dependencies": {
+    "cordova-android": "^13.0.0",
+    "cordova-plugin-android-permissions": "^1.1.5",
+    "cordova-plugin-androidx-adapter": "^1.1.3"
+  },
+  "cordova": {
+    "plugins": {
+      "cordova-plugin-android-permissions": {},
+      "cordova-plugin-androidx-adapter": {}
+    },
+    "platforms": [
+      "android"
+    ]
+  }
+}
