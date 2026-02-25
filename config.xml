@@ -1,27 +1,19 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="safety.call.japan" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>Safety Call Japan</name>
-    <description>نظام حماية حقيقي للمكالمات في اليابان</description>
+    <description>نظام حظر صامت للمكالمات الدولية</description>
     <author email="zakaria@example.com">Zakaria</author>
     
     <content src="index.html" />
     <access origin="*" />
     
-    <preference name="SplashScreen" value="none" />
     <preference name="AndroidXEnabled" value="true" />
-    <preference name="android-minSdkVersion" value="28" /> <!-- رفعنا النسخة لضمان دعم خدمات الحظر الحديثة -->
+    <preference name="android-minSdkVersion" value="29" /> <!-- نحتاج نسخة 29 على الأقل لخدمة CallScreening -->
     <preference name="android-targetSdkVersion" value="34" />
 
     <platform name="android">
-        <config-file target="AndroidManifest.xml" parent="/*">
-            <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-            <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
-            <uses-permission android:name="android.permission.READ_CALL_LOG" />
-            <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
-        </config-file>
-
-        <!-- هذا الجزء هو ما يجعل التطبيق حقيقياً وليس خدعة -->
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <!-- تعريف الخدمة التي تعمل في الخلفية دائماً لرصد المكالمات -->
             <service android:name="com.cordova.plugins.CallScreeningImplementation"
                      android:permission="android.permission.BIND_SCREENING_SERVICE"
                      android:exported="true">
@@ -29,6 +21,12 @@
                     <action android:name="android.telecom.CallScreeningService" />
                 </intent-filter>
             </service>
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+            <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
+            <uses-permission android:name="android.permission.READ_CALL_LOG" />
         </config-file>
     </platform>
 </widget>
