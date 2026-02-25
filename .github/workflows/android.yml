@@ -1,4 +1,4 @@
-name: Safety_Call_Japan_Final_Fix
+name: Safety_Call_Japan_Full_Package
 
 on:
   push:
@@ -21,35 +21,23 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
-          gradle-version: '8.7' # تثبيت إصدار مستقر يمنع تعارض Gradle 9.3
+          gradle-version: '8.7'
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
       - name: Build Android App
         run: |
-          # تنظيف إعدادات npm لتجنب Broken Pipe
-          npm config set fetch-retries 5
-          npm config set fetch-retry-mintimeout 20000
-          npm config set fetch-retry-maxtimeout 120000
-          
-          # تثبيت كوردوفا
           npm install -g cordova --no-audit
-          
-          # تنظيف شامل للمشروع
           rm -rf node_modules package-lock.json platforms plugins
           
-          # إضافة المنصة (استخدام 13.0.0 فهو يدعم أندرويد 14 بشكل أفضل)
           cordova platform add android@13.0.0 --save
-          
-          # إضافة الملحقات الأساسية
           cordova plugin add cordova-plugin-android-permissions --save
           cordova plugin add cordova-plugin-device --save
           
-          # بناء المشروع وتحميل الـ Wrapper الصحيح
           cordova prepare android
           
-          # إنشاء مفتاح التوقيع
+          # إنشاء مفتاح التوقيع الدائم
           keytool -genkey -v -keystore release.jks -alias safety_key -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=Zakaria, O=SafetyCallJapan" -deststoretype pkcs12
 
           cat <<EOF > build.json
@@ -65,14 +53,17 @@ jobs:
           }
           EOF
 
-          # بناء APK
+          # بناء APK و AAB معاً
           cordova build android --release --buildConfig=build.json -- --packageType=apk
+          cordova build android --release --buildConfig=build.json -- --packageType=bundle
 
           mkdir -p output
-          cp platforms/android/app/build/outputs/apk/release/*.apk ./output/Safety_Call_Japan_Pro.apk
+          cp platforms/android/app/build/outputs/apk/release/*.apk ./output/Safety_Call_V1.apk
+          cp platforms/android/app/build/outputs/bundle/release/*.aab ./output/Safety_Call_V1.aab
+          cp release.jks ./output/release.jks
 
-      - name: Upload Artifact
+      - name: Upload Full Package
         uses: actions/upload-artifact@v4
         with:
-          name: Safety-Call-Japan-Final
+          name: SafeCall-Japan-Full-Package
           path: output/
