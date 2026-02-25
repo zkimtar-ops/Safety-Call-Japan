@@ -2,268 +2,61 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Safety Call Japan</title>
     <style>
-        :root {
-            --primary: #6366f1;
-            --success: #10b981;
-            --danger: #ef4444;
-            --bg: #020617;
-            --card: #111827;
-            --text: #f8fafc;
-        }
-
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        /* رأس الصفحة */
-        .header {
-            text-align: center;
-            padding: 20px 0;
-        }
-        .header h1 { margin: 0; font-size: 24px; color: var(--primary); }
-        .header p { margin: 5px 0 0; font-size: 14px; color: #94a3b8; }
-
-        /* بطاقة الحالة */
-        .status-card {
-            background: var(--card);
-            border-radius: 24px;
-            padding: 30px;
-            text-align: center;
-            border: 1px solid #1f2937;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-        }
-        .shield-btn {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            background: #1e293b;
-            margin: 0 auto 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 4px solid #334155;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
-        }
-        .shield-btn.active {
-            background: var(--primary);
-            border-color: #818cf8;
-            box-shadow: 0 0 40px rgba(99, 102, 241, 0.4);
-            transform: scale(1.05);
-        }
-        .shield-btn svg { width: 45px; height: 45px; stroke: white; }
-
-        /* التحكم */
-        .settings-list {
-            background: var(--card);
-            border-radius: 20px;
-            border: 1px solid #1f2937;
-            overflow: hidden;
-        }
-        .setting-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            border-bottom: 1px solid #1f2937;
-        }
-        .setting-item:last-child { border-bottom: none; }
-        .setting-info h3 { margin: 0; font-size: 16px; }
-        .setting-info p { margin: 4px 0 0; font-size: 12px; color: #64748b; }
-
-        /* مفتاح التبديل Switch */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 28px;
-        }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #374151;
-            transition: .3s;
-            border-radius: 34px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 20px; width: 20px;
-            left: 4px; bottom: 4px;
-            background-color: white;
-            transition: .3s;
-            border-radius: 50%;
-        }
-        input:checked + .slider { background-color: var(--success); }
-        input:checked + .slider:before { transform: translateX(22px); }
-
-        /* سجل النشاط */
-        .log-container {
-            flex-grow: 1;
-        }
-        .log-title { font-size: 14px; color: #94a3b8; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-        .log-box {
-            background: #000;
-            border-radius: 15px;
-            padding: 15px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            height: 150px;
-            overflow-y: auto;
-            color: #4ade80;
-            border: 1px solid #1f2937;
-        }
-        .log-entry { margin-bottom: 5px; line-height: 1.4; }
-
-        /* إضافة رقم مسموح */
-        .add-whitelist {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .add-whitelist input {
-            flex-grow: 1;
-            background: var(--card);
-            border: 1px solid #1f2937;
-            border-radius: 12px;
-            padding: 12px;
-            color: white;
-            outline: none;
-        }
-        .add-whitelist button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 0 20px;
-            font-weight: bold;
-        }
-
+        :root { --bg: #0f172a; --primary: #6366f1; --success: #10b981; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); color: white; text-align: center; padding: 40px 20px; }
+        .status-box { background: rgba(30, 41, 59, 0.7); padding: 30px; border-radius: 25px; border: 1px solid #1e293b; }
+        .icon-box { font-size: 50px; margin-bottom: 20px; }
+        .btn-setup { background: var(--primary); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; font-size: 16px; }
+        .footer-note { margin-top: 30px; font-size: 12px; color: #94a3b8; line-height: 1.6; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>Safety Call Japan</h1>
-        <p>حماية المكالمات ضد الاحتيال الدولي</p>
-    </div>
-
-    <div class="status-card">
-        <div id="shieldBtn" class="shield-btn" onclick="toggleProtection()">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-            </svg>
+    <div class="icon-box">🛡️</div>
+    <h1>حارس اليابان الصامت</h1>
+    
+    <div class="status-box">
+        <p>هذا التطبيق يعمل تلقائياً في الخلفية لحظر المكالمات الدولية التي لا تبدأ بـ <b>+81</b>.</p>
+        
+        <div id="setupSection">
+            <p style="color: #f59e0b; font-size: 14px;">يجب تفعيل التطبيق لمرة واحدة فقط ليعمل الحظر الآلي.</p>
+            <button class="btn-setup" onclick="activateService()">تفعيل الحماية التلقائية</button>
         </div>
-        <h2 id="statusTitle" style="margin: 10px 0 5px;">الحماية متوقفة</h2>
-        <p id="statusSub" style="color: #64748b; font-size: 13px;">اضغط على الدرع لتفعيل النظام</p>
-    </div>
 
-    <div class="settings-list">
-        <div class="setting-item">
-            <div class="setting-info">
-                <h3>حظر المكالمات الدولية</h3>
-                <p>تلقائياً للأرقام التي لا تبدأ بـ +81</p>
-            </div>
-            <label class="switch">
-                <input type="checkbox" id="blockIntlSwitch" onchange="updateSettings()">
-                <span class="slider"></span>
-            </label>
+        <div id="activeSection" style="display: none;">
+            <p style="color: var(--success); font-weight: bold;">✅ الحماية الصامتة نشطة</p>
+            <p style="font-size: 13px;">يمكنك إغلاق التطبيق الآن، سيتم حظر أي مكالمة دولية فوراً.</p>
         </div>
     </div>
 
-    <div class="log-container">
-        <div class="log-title">📋 سجل النشاط الأخير</div>
-        <div class="log-box" id="logBox">
-            <div class="log-entry">[نظام] بانتظار تفعيل الحماية...</div>
-        </div>
-    </div>
-
-    <div class="log-title">🛡️ الأرقام المستثناة (المسموحة)</div>
-    <div class="add-whitelist">
-        <input type="tel" id="whitePhone" placeholder="أدخل الرقم (مثال: +966...)">
-        <button onclick="addToWhitelist()">إضافة</button>
+    <div class="footer-note">
+        * لن ترى أي تنبيهات عند ورود مكالمة دولية؛ سيقوم التطبيق بإنهاء المكالمة تلقائياً قبل أن يصلك أي إزعاج.
     </div>
 
     <script src="cordova.js"></script>
     <script>
-        let isEnabled = false;
-        let whitelist = ["+81"];
-
-        document.addEventListener('deviceready', () => {
-            addLog("تم تشغيل التطبيق بنجاح.");
-            requestPermissions();
-        }, false);
-
-        function addLog(msg) {
-            const box = document.getElementById('logBox');
-            const now = new Date();
-            const time = now.getHours() + ":" + now.getMinutes().toString().padStart(2, '0');
-            box.innerHTML += `<div class="log-entry">[${time}] ${msg}</div>`;
-            box.scrollTop = box.scrollHeight;
-        }
-
-        function requestPermissions() {
-            if (window.cordova && cordova.plugins.permissions) {
-                const permissions = cordova.plugins.permissions;
-                const list = [
-                    permissions.READ_PHONE_STATE,
-                    permissions.READ_CALL_LOG,
-                    permissions.ANSWER_PHONE_CALLS
-                ];
-                permissions.requestPermissions(list, (s) => addLog("صلاحيات المكالمات مقبولة."), (e) => addLog("خطأ: لم يتم منح الصلاحيات."));
+        function activateService() {
+            // حفظ الحالة أن التطبيق يجب أن يعمل دائماً
+            localStorage.setItem('silent_guard', 'true');
+            checkStatus();
+            
+            // فتح إعدادات النظام لتعيينه كافتراضي (هذه هي الخطوة الوحيدة التي تتطلب تدخل المستخدم لمرة واحدة)
+            if (window.cordova && cordova.plugins.settings) {
+                cordova.plugins.settings.open("manage_default_apps");
             }
         }
 
-        function toggleProtection() {
-            isEnabled = !isEnabled;
-            const btn = document.getElementById('shieldBtn');
-            const title = document.getElementById('statusTitle');
-            const sub = document.getElementById('statusSub');
-
-            if(isEnabled) {
-                btn.classList.add('active');
-                title.innerText = "الحماية نشطة";
-                title.style.color = "#10b981";
-                sub.innerText = "يتم الآن تصفية المكالمات الواردة";
-                addLog("تم تفعيل درع الحماية الذكي.");
-            } else {
-                btn.classList.remove('active');
-                title.innerText = "الحماية متوقفة";
-                title.style.color = "white";
-                sub.innerText = "اضغط على الدرع لتفعيل النظام";
-                addLog("تم إيقاف نظام الحماية.");
+        function checkStatus() {
+            if (localStorage.getItem('silent_guard') === 'true') {
+                document.getElementById('setupSection').style.display = 'none';
+                document.getElementById('activeSection').style.display = 'block';
             }
         }
 
-        function updateSettings() {
-            const isChecked = document.getElementById('blockIntlSwitch').checked;
-            addLog(isChecked ? "تم تفعيل حظر المكالمات الدولية." : "تم السماح بالمكالمات الدولية.");
-        }
-
-        function addToWhitelist() {
-            const input = document.getElementById('whitePhone');
-            const num = input.value.trim();
-            if(num.length > 5) {
-                whitelist.push(num);
-                addLog("تم إضافة الرقم " + num + " لقائمة الاستثناءات.");
-                input.value = "";
-            } else {
-                addLog("خطأ: يرجى إدخال رقم هاتف صحيح.");
-            }
-        }
+        document.addEventListener('deviceready', checkStatus, false);
     </script>
 </body>
 </html>
