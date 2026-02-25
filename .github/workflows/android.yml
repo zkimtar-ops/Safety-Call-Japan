@@ -1,4 +1,4 @@
-name: Safety_Call_Japan_Final_V5
+name: Safety_Call_Japan_Pro_V7
 
 on:
   push:
@@ -21,30 +21,23 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Build APK and AAB
+      - name: Build and Sign
         run: |
-          # 1. تثبيت كوردوفا
           npm install -g cordova
-          
-          # 2. إعداد البيئة
-          npm install
-
-          # 3. قبول التراخيص
+          [ -f package.json ] || npm init -y
           yes | sdkmanager --licenses || true
 
-          # 4. بناء المنصة
           cordova platform add android@13.0.0
           
-          # إضافة الإضافات المطلوبة للحظر الحقيقي
+          # إضافات لفتح إعدادات النظام وطلب الصلاحيات
           cordova plugin add cordova-plugin-android-permissions
           cordova plugin add cordova-plugin-androidx-adapter
+          cordova plugin add cordova-plugin-settings-hook # لفتح الإعدادات مباشرة
           
           cordova prepare android
 
-          # 5. إنشاء مفتاح التوقيع
           keytool -genkey -v -keystore release.jks -alias safety_key -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=Zakaria, O=SafetyCallJapan" -deststoretype pkcs12
 
-          # 6. ملف إعدادات البناء
           cat <<EOF > build.json
           {
               "android": {
@@ -58,20 +51,15 @@ jobs:
           }
           EOF
 
-          # 7. بناء APK (للتجربة)
           cordova build android --release --buildConfig=build.json -- --packageType=apk
-
-          # 8. بناء AAB (للمتجر)
           cordova build android --release --buildConfig=build.json -- --packageType=bundle
 
-          # 9. نسخ المخرجات
           mkdir -p output
           find platforms/android/app/build/outputs/apk/release/ -name "*.apk" -exec cp {} ./output/Safety_Call_Japan.apk \;
           find platforms/android/app/build/outputs/bundle/release/ -name "*.aab" -exec cp {} ./output/Safety_Call_Japan.aab \;
-          cp release.jks ./output/release.jks
 
-      - name: Upload Final Artifacts
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Safety-Call-Japan-Files
+          name: Safety-Call-Japan-Pro-Package
           path: output/
