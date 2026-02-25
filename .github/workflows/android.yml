@@ -1,4 +1,4 @@
-name: Safety_Call_Japan_Build
+name: Safety_Call_Japan_Final_V5
 
 on:
   push:
@@ -21,30 +21,27 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Build and Sign Everything
+      - name: Build APK and AAB
         run: |
           # 1. تثبيت كوردوفا
           npm install -g cordova
           
-          # 2. إعداد package.json
-          [ -f package.json ] || npm init -y
+          # 2. إعداد البيئة
+          npm install
 
-          # 3. قبول تراخيص الأندرويد
+          # 3. قبول التراخيص
           yes | sdkmanager --licenses || true
 
-          # 4. إعادة بناء المنصة من الصفر
-          cordova platform remove android --nosave || true
-          cordova platform add android@13.0.0 --save
+          # 4. بناء المنصة
+          cordova platform add android@13.0.0
           
-          # إزالة أي إضافة سبلش وضمان وجود المكتبات المطلوبة
-          cordova plugin remove cordova-plugin-splashscreen --save || true
-          cordova plugin add cordova-plugin-geolocation --save
-          cordova plugin add cordova-plugin-androidx-adapter --save
+          # إضافة الإضافات المطلوبة للحظر الحقيقي
+          cordova plugin add cordova-plugin-android-permissions
+          cordova plugin add cordova-plugin-androidx-adapter
           
-          # تحديث ملفات الأندرويد بإعدادات الـ XML
           cordova prepare android
 
-          # 5. إنشاء مفتاح التوقيع بالاسم الجديد
+          # 5. إنشاء مفتاح التوقيع
           keytool -genkey -v -keystore release.jks -alias safety_key -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=Zakaria, O=SafetyCallJapan" -deststoretype pkcs12
 
           # 6. ملف إعدادات البناء
@@ -61,11 +58,13 @@ jobs:
           }
           EOF
 
-          # 7. البناء (Release)
+          # 7. بناء APK (للتجربة)
           cordova build android --release --buildConfig=build.json -- --packageType=apk
+
+          # 8. بناء AAB (للمتجر)
           cordova build android --release --buildConfig=build.json -- --packageType=bundle
 
-          # 8. نسخ المخرجات
+          # 9. نسخ المخرجات
           mkdir -p output
           find platforms/android/app/build/outputs/apk/release/ -name "*.apk" -exec cp {} ./output/Safety_Call_Japan.apk \;
           find platforms/android/app/build/outputs/bundle/release/ -name "*.aab" -exec cp {} ./output/Safety_Call_Japan.aab \;
@@ -74,5 +73,5 @@ jobs:
       - name: Upload Final Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Safety-Call-Japan-Final
+          name: Safety-Call-Japan-Files
           path: output/
