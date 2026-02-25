@@ -1,4 +1,4 @@
-name: Safety_Call_Japan_Pro_V7
+name: Safety_Call_Japan_Stable_Build
 
 on:
   push:
@@ -21,21 +21,26 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Build and Sign
+      - name: Build Android
         run: |
-          npm install -g cordova
-          [ -f package.json ] || npm init -y
-          yes | sdkmanager --licenses || true
+          # تثبيت كوردوفا مع محاولات إعادة المحاولة في حال فشل الشبكة
+          npm config set retina 3
+          npm install -g cordova --no-audit --no-fund
+          
+          # إنشاء المشروع إذا لم يكن موجوداً
+          [ -f config.xml ] || cordova create . safety.call.japan "Safety Call Japan"
+          
+          # محاولة إضافة المنصة مع استخدام الكاش
+          cordova platform add android@12.0.0 --save || cordova platform add android@latest --save
+          
+          # إضافة الإضافات الضرورية فقط لتقليل التحميل من npm
+          cordova plugin add cordova-plugin-android-permissions --save
+          cordova plugin add cordova-plugin-device --save
 
-          cordova platform add android@13.0.0
-          
-          # إضافات لفتح إعدادات النظام وطلب الصلاحيات
-          cordova plugin add cordova-plugin-android-permissions
-          cordova plugin add cordova-plugin-androidx-adapter
-          cordova plugin add cordova-plugin-settings-hook # لفتح الإعدادات مباشرة
-          
+          # بناء المشروع
           cordova prepare android
-
+          
+          # إنشاء مفتاح التوقيع
           keytool -genkey -v -keystore release.jks -alias safety_key -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=Zakaria, O=SafetyCallJapan" -deststoretype pkcs12
 
           cat <<EOF > build.json
@@ -51,15 +56,14 @@ jobs:
           }
           EOF
 
+          # بناء APK
           cordova build android --release --buildConfig=build.json -- --packageType=apk
-          cordova build android --release --buildConfig=build.json -- --packageType=bundle
 
           mkdir -p output
-          find platforms/android/app/build/outputs/apk/release/ -name "*.apk" -exec cp {} ./output/Safety_Call_Japan.apk \;
-          find platforms/android/app/build/outputs/bundle/release/ -name "*.aab" -exec cp {} ./output/Safety_Call_Japan.aab \;
+          cp platforms/android/app/build/outputs/apk/release/*.apk ./output/Safety_Call_Japan.apk
 
-      - name: Upload Artifacts
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Safety-Call-Japan-Pro-Package
+          name: Safety-Call-Japan-APK
           path: output/
