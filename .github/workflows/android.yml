@@ -18,12 +18,17 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.7' # تثبيت إصدار مستقر يمنع تعارض Gradle 9.3
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
       - name: Build Android App
         run: |
-          # تنظيف الكاش وإعداد npm للتعامل مع الأخطاء الشبكية
+          # تنظيف إعدادات npm لتجنب Broken Pipe
           npm config set fetch-retries 5
           npm config set fetch-retry-mintimeout 20000
           npm config set fetch-retry-maxtimeout 120000
@@ -31,17 +36,17 @@ jobs:
           # تثبيت كوردوفا
           npm install -g cordova --no-audit
           
-          # إزالة أي ملفات قديمة تسبب تعارض
-          rm -rf node_modules package-lock.json
+          # تنظيف شامل للمشروع
+          rm -rf node_modules package-lock.json platforms plugins
           
-          # إضافة المنصة مع تحديد نسخة مستقرة جداً وتجنب الفيتش المعقد
-          cordova platform add android@12.0.0 --save --verbose
+          # إضافة المنصة (استخدام 13.0.0 فهو يدعم أندرويد 14 بشكل أفضل)
+          cordova platform add android@13.0.0 --save
           
           # إضافة الملحقات الأساسية
           cordova plugin add cordova-plugin-android-permissions --save
           cordova plugin add cordova-plugin-device --save
           
-          # بناء المشروع
+          # بناء المشروع وتحميل الـ Wrapper الصحيح
           cordova prepare android
           
           # إنشاء مفتاح التوقيع
