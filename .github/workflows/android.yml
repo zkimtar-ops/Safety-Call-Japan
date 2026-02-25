@@ -1,0 +1,78 @@
+name: Safety_Call_Japan_Build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build and Sign Everything
+        run: |
+          # 1. تثبيت كوردوفا
+          npm install -g cordova
+          
+          # 2. إعداد package.json
+          [ -f package.json ] || npm init -y
+
+          # 3. قبول تراخيص الأندرويد
+          yes | sdkmanager --licenses || true
+
+          # 4. إعادة بناء المنصة من الصفر
+          cordova platform remove android --nosave || true
+          cordova platform add android@13.0.0 --save
+          
+          # إزالة أي إضافة سبلش وضمان وجود المكتبات المطلوبة
+          cordova plugin remove cordova-plugin-splashscreen --save || true
+          cordova plugin add cordova-plugin-geolocation --save
+          cordova plugin add cordova-plugin-androidx-adapter --save
+          
+          # تحديث ملفات الأندرويد بإعدادات الـ XML
+          cordova prepare android
+
+          # 5. إنشاء مفتاح التوقيع بالاسم الجديد
+          keytool -genkey -v -keystore release.jks -alias safety_key -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=Zakaria, O=SafetyCallJapan" -deststoretype pkcs12
+
+          # 6. ملف إعدادات البناء
+          cat <<EOF > build.json
+          {
+              "android": {
+                  "release": {
+                      "keystore": "release.jks",
+                      "storePassword": "123456",
+                      "alias": "safety_key",
+                      "password": "123456"
+                  }
+              }
+          }
+          EOF
+
+          # 7. البناء (Release)
+          cordova build android --release --buildConfig=build.json -- --packageType=apk
+          cordova build android --release --buildConfig=build.json -- --packageType=bundle
+
+          # 8. نسخ المخرجات
+          mkdir -p output
+          find platforms/android/app/build/outputs/apk/release/ -name "*.apk" -exec cp {} ./output/Safety_Call_Japan.apk \;
+          find platforms/android/app/build/outputs/bundle/release/ -name "*.aab" -exec cp {} ./output/Safety_Call_Japan.aab \;
+          cp release.jks ./output/release.jks
+
+      - name: Upload Final Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Safety-Call-Japan-Final
+          path: output/
