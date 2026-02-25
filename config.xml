@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="safety.call.japan" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>Safety Call Japan</name>
+    <description>تطبيق حماية المكالمات في اليابان</description>
+    <author email="zakaria@example.com">Zakaria</author>
+    
+    <content src="index.html" />
+    <access origin="*" />
+    
+    <preference name="SplashScreen" value="none" />
+    <preference name="AndroidXEnabled" value="true" />
+    <preference name="android-minSdkVersion" value="24" />
+    <preference name="android-targetSdkVersion" value="34" />
+
+    <platform name="android">
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+            <uses-permission android:name="android.permission.READ_CALL_LOG" />
+            <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
+        </config-file>
+    </platform>
+</widget>
