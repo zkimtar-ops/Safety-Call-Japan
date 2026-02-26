@@ -7,127 +7,108 @@
     <style>
         :root { --primary: #6366f1; --success: #10b981; --bg: #0f172a; --card: #1e293b; }
         body { font-family: system-ui, sans-serif; background: var(--bg); color: white; margin: 0; padding: 20px; text-align: center; }
-        
-        .status-container {
-            background: var(--card); border-radius: 30px; padding: 40px 20px;
-            margin-top: 50px; border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        .container { background: var(--card); border-radius: 30px; padding: 30px 20px; margin-top: 40px; border: 1px solid rgba(255,255,255,0.1); }
+        .btn-activate { 
+            background: var(--primary); color: white; border: none; padding: 18px; 
+            border-radius: 15px; width: 100%; font-weight: bold; font-size: 18px; 
+            cursor: pointer; margin-top: 20px; transition: 0.3s;
         }
-
-        .icon-shield {
-            font-size: 60px; margin-bottom: 20px;
-            filter: drop-shadow(0 0 15px var(--primary));
-        }
-
-        .btn-activate {
-            background: var(--primary); color: white; border: none;
-            padding: 18px 30px; border-radius: 15px; width: 100%;
-            font-weight: bold; font-size: 16px; cursor: pointer;
-            margin-top: 20px;
-        }
-
-        .status-badge {
-            display: inline-block; padding: 5px 15px; border-radius: 20px;
-            font-size: 12px; margin-bottom: 10px; background: rgba(255,255,255,0.1);
-        }
-
-        .permission-item {
-            text-align: right; font-size: 13px; color: #94a3b8;
-            background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px;
-            margin-top: 10px; display: flex; align-items: center; gap: 10px;
+        .btn-activate:active { background: #4f46e5; transform: scale(0.98); }
+        .status-text { margin-top: 15px; font-size: 14px; color: #94a3b8; }
+        .debug-box { 
+            background: #000; color: #4ade80; font-family: monospace; font-size: 10px; 
+            padding: 10px; border-radius: 10px; margin-top: 20px; height: 80px; 
+            overflow-y: auto; text-align: left; border: 1px solid #334155; 
         }
     </style>
 </head>
 <body>
 
-    <div class="status-container">
-        <div class="status-badge" id="permStatus">التحقق من الصلاحيات...</div>
-        <div class="icon-shield">🛡️</div>
-        <h1 style="margin: 0;">حارس اليابان</h1>
-        <p style="color: #94a3b8; font-size: 14px;">نظام الحظر الصامت للمكالمات الدولية</p>
+    <div class="container">
+        <div style="font-size: 60px;">🛡️</div>
+        <h1>Safety Call Japan</h1>
+        <p class="status-text">تفعيل نظام الحظر التلقائي للمكالمات الدولية</p>
 
-        <div id="setupView">
-            <div class="permission-item">
-                <span>✅</span> <span>الوصول لحالة الهاتف (لرصد المكالمات)</span>
-            </div>
-            <div class="permission-item">
-                <span>✅</span> <span>إدارة المكالمات (لحظر الأرقام الدولية)</span>
-            </div>
-            
-            <button class="btn-activate" onclick="requestAllPermissions()">تفعيل الحماية الكاملة</button>
-            <p style="font-size: 11px; color: #64748b; margin-top: 15px;">
-                * سيطلب التطبيق الآن صلاحيات الوصول، يرجى الموافقة عليها لضمان عمل الحظر.
-            </p>
+        <div id="ui-setup">
+            <button class="btn-activate" id="startBtn">تفعيل الحماية الآن</button>
         </div>
 
-        <div id="activeView" style="display: none; color: var(--success); font-weight: bold; padding: 20px;">
-            ✅ النظام يعمل الآن بصمت
-            <p style="font-size: 12px; color: #94a3b8; font-weight: normal;">
-                يتم حظر أي مكالمة غير يابانية (+81) تلقائياً.
-            </p>
+        <div id="ui-active" style="display: none;">
+            <h2 style="color: var(--success);">✅ الحماية نشطة</h2>
+            <p style="font-size: 13px;">النظام يعمل في الخلفية بصمت.</p>
         </div>
+    </div>
+
+    <div class="debug-box" id="debugLog">
+        [نظام] في انتظار التشغيل...<br>
     </div>
 
     <script src="cordova.js"></script>
     <script>
-        // دالة لطلب كافة الصلاحيات فور تشغيل التطبيق
-        function requestAllPermissions() {
-            if (window.cordova && cordova.plugins.permissions) {
-                const permissions = cordova.plugins.permissions;
-                const list = [
-                    permissions.READ_PHONE_STATE,
-                    permissions.ANSWER_PHONE_CALLS,
-                    permissions.READ_CALL_LOG
-                ];
-
-                permissions.requestPermissions(list, (status) => {
-                    if (status.hasPermission) {
-                        console.log("تم منح الصلاحيات");
-                        // بعد منح الصلاحيات، نطلب تعيينه كافتراضي
-                        openDefaultAppsSettings();
-                    } else {
-                        console.warn("تم رفض الصلاحيات");
-                    }
-                }, (err) => console.error(err));
-            } else {
-                // للمتصفح أو الاختبار
-                openDefaultAppsSettings();
-            }
+        const logEl = document.getElementById('debugLog');
+        function writeLog(m) {
+            logEl.innerHTML += `> ${m}<br>`;
+            logEl.scrollTop = logEl.scrollHeight;
         }
 
-        function openDefaultAppsSettings() {
-            if (window.cordova && cordova.plugins.settings) {
-                localStorage.setItem('guard_ready', 'true');
+        // دالة تفعيل الصلاحيات
+        function initApp() {
+            writeLog("بدء عملية التفعيل...");
+            
+            if (typeof cordova === 'undefined') {
+                writeLog("خطأ: cordova غير موجود. جرب على الهاتف.");
+                return;
+            }
+
+            const permissions = cordova.plugins.permissions;
+            const list = [
+                permissions.READ_PHONE_STATE,
+                permissions.ANSWER_PHONE_CALLS,
+                permissions.READ_CALL_LOG
+            ];
+
+            writeLog("طلب الصلاحيات...");
+            permissions.requestPermissions(list, (status) => {
+                if (status.hasPermission) {
+                    writeLog("تم منح الصلاحيات.");
+                    openSettings();
+                } else {
+                    writeLog("تم رفض الصلاحيات.");
+                }
+            }, (err) => writeLog("خطأ: " + err));
+        }
+
+        function openSettings() {
+            writeLog("محاولة فتح الإعدادات الافتراضية...");
+            if (window.cordova && window.cordova.plugins.settings) {
+                // استخدام الاضافة المضافة حديثاً لفتح الإعدادات
                 cordova.plugins.settings.open("manage_default_apps", () => {
-                    checkStatus();
-                }, () => {
-                    alert("يرجى اختيار التطبيق في إعدادات Caller ID & Spam");
+                    writeLog("تم فتح الشاشة.");
+                    finishSetup();
+                }, (err) => {
+                    writeLog("فشل فتح الشاشة تلقائياً.");
+                    finishSetup();
                 });
             } else {
-                localStorage.setItem('guard_ready', 'true');
-                checkStatus();
+                writeLog("إضافة الإعدادات غير متوفرة، يرجى الضبط يدوياً.");
+                finishSetup();
             }
         }
 
-        function checkStatus() {
-            if (localStorage.getItem('guard_ready') === 'true') {
-                document.getElementById('setupView').style.display = 'none';
-                document.getElementById('activeView').style.display = 'block';
-                document.getElementById('permStatus').innerText = "الحماية مفعلة";
-                document.getElementById('permStatus').style.color = "#10b981";
-            }
+        function finishSetup() {
+            localStorage.setItem('app_active', 'true');
+            document.getElementById('ui-setup').style.display = 'none';
+            document.getElementById('ui-active').style.display = 'block';
         }
 
-        // تشغيل التحقق فور جاهزية الجهاز
         document.addEventListener('deviceready', () => {
-            checkStatus();
-            // محاولة طلب الصلاحيات تلقائياً عند أول فتح
-            if (localStorage.getItem('guard_ready') !== 'true') {
-                requestAllPermissions();
+            writeLog("النظام جاهز.");
+            document.getElementById('startBtn').addEventListener('click', initApp);
+            
+            if (localStorage.getItem('app_active') === 'true') {
+                finishSetup();
             }
         }, false);
-
-        document.addEventListener('resume', checkStatus, false);
     </script>
 </body>
 </html>
