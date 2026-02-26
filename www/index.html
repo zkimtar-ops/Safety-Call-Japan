@@ -3,32 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حاجز المكالمات الدولية</title>
+    <title>Call Shield</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f3; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 80%; max-width: 400px; text-align: center; }
-        h1 { color: #2c3e50; font-size: 1.5rem; }
-        .toggle-switch { position: relative; display: inline-block; width: 60px; height: 34px; margin: 20px 0; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #e74c3c; }
-        input:checked + .slider:before { transform: translateX(26px); }
-        .status-text { font-weight: bold; color: #7f8c8d; }
+        body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; text-align: center; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .card { background: #16213e; padding: 40px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 85%; }
+        h1 { color: #e94560; margin-bottom: 10px; }
+        .status-box { background: #0f3460; padding: 15px; border-radius: 15px; margin: 20px 0; font-size: 1.2rem; }
+        .btn-toggle { background: #e94560; color: white; border: none; padding: 15px 30px; border-radius: 50px; font-size: 1rem; cursor: pointer; transition: 0.3s; }
+        .btn-toggle:active { transform: scale(0.95); }
+        .info { font-size: 0.8rem; color: #95a5a6; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>حظر المكالمات الدولية</h1>
-    <p>تفعيل الحظر التلقائي لأي رقم يبدأ بـ (+)</p>
+<div class="card">
+    <h1>حاجز المكالمات</h1>
+    <p>حماية من الأرقام الدولية المزعجة</p>
     
-    <label class="toggle-switch">
-        <input type="checkbox" id="blockToggle">
-        <span class="slider"></span>
-    </label>
+    <div class="status-box" id="status">النظام: متوقف</div>
     
-    <div id="statusLabel" class="status-text">الحماية متوقفة</div>
+    <button class="btn-toggle" onclick="toggleService()">تفعيل / تعطيل الحماية</button>
+    
+    <p class="info">* تأكد من إعطاء إذن "إدارة المكالمات" للتطبيق من إعدادات الهاتف.</p>
 </div>
 
 <script src="cordova.js"></script>
