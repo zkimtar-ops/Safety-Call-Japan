@@ -3,125 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>درع اليابان - الحظر المسبق</title>
+    <title>درع اليابان - التفعيل التلقائي</title>
     <style>
         :root {
-            --primary: #6366f1;
+            --primary: #4f46e5;
             --success: #10b981;
-            --danger: #ef4444;
             --bg: #0f172a;
-            --card: rgba(30, 41, 59, 0.9);
+            --card: #1e293b;
         }
 
         body {
-            font-family: system-ui, sans-serif;
+            font-family: system-ui, -apple-system, sans-serif;
             background: var(--bg); color: white; margin: 0; padding: 20px;
             display: flex; flex-direction: column; align-items: center; min-height: 100vh;
         }
 
         .card {
-            background: var(--card); border-radius: 25px; padding: 30px;
+            background: var(--card); border-radius: 30px; padding: 30px;
             width: 100%; max-width: 400px; text-align: center;
-            border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .shield-icon {
-            width: 100px; height: 100px; margin: 0 auto 20px;
-            background: #1e293b; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            border: 4px solid var(--primary); transition: 0.5s;
+        .status-icon {
+            font-size: 60px; margin-bottom: 20px;
+            display: inline-block; transition: 0.5s;
         }
 
-        .shield-icon.active {
-            background: var(--success); border-color: #fff;
-            box-shadow: 0 0 30px var(--success);
-        }
+        .active-icon { transform: scale(1.2); filter: drop-shadow(0 0 15px var(--success)); }
 
         .btn-main {
             background: var(--primary); color: white; border: none;
-            padding: 18px 30px; border-radius: 15px; width: 100%;
-            font-weight: bold; font-size: 18px; cursor: pointer; margin-top: 20px;
+            padding: 20px; border-radius: 18px; width: 100%;
+            font-weight: bold; font-size: 18px; cursor: pointer;
+            margin-top: 25px; transition: 0.3s;
         }
 
-        .instruction-box {
-            background: rgba(255,255,255,0.05); border-radius: 15px;
-            padding: 15px; margin-top: 20px; text-align: right; font-size: 14px;
-        }
+        .btn-main:active { transform: scale(0.95); background: #4338ca; }
 
         .log-box {
             background: #000; color: #4ade80; font-family: monospace;
-            font-size: 11px; padding: 10px; border-radius: 10px;
-            margin-top: 20px; width: 100%; height: 80px; overflow-y: auto; text-align: left;
+            font-size: 11px; padding: 12px; border-radius: 12px;
+            margin-top: 20px; width: 100%; height: 100px; overflow-y: auto; text-align: left;
         }
+
+        .step { font-size: 13px; color: #94a3b8; margin-top: 10px; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <div id="shield" class="shield-icon">
-            <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-            </svg>
-        </div>
+        <div id="icon" class="status-icon">🛡️</div>
+        <h1 style="margin: 0;">نظام الحظر التلقائي</h1>
+        <p class="step">سيتم الآن طلب تعيين التطبيق كحارس للمكالمات</p>
+
+        <button class="btn-main" onclick="triggerDefaultAppRequest()">تفعيل كمتصل افتراضي</button>
         
-        <h1 style="margin: 0; font-size: 22px;">تفعيل الحظر المسبق</h1>
-        <p style="color: #94a3b8; font-size: 14px;">لمنع الرنين من الأرقام الدولية تماماً</p>
-
-        <div class="instruction-box">
-            <b>الخطوات المطلوبة:</b>
-            <ol style="padding-right: 20px; margin: 10px 0;">
-                <li>اضغط على الزر أدناه.</li>
-                <li>اختر "Safety Call Japan" كتطبيق افتراضي.</li>
-                <li>سيتم حظر أي رقم غير ياباني بصمت.</li>
-            </ol>
-        </div>
-
-        <button class="btn-main" onclick="requestCallScreeningRole()">تشغيل الدرع الآن</button>
+        <p style="font-size: 11px; color: #64748b; margin-top: 15px;">
+            ملاحظة: عند ظهور نافذة النظام، اختر "Safety Call Japan" ثم "Set as default".
+        </p>
     </div>
 
-    <div class="log-box" id="logs">
-        [نظام] بانتظار التفعيل...<br>
+    <div class="log-box" id="debugLogs">
+        [نظام] بانتظار بدء التشغيل...<br>
     </div>
 
     <script src="cordova.js"></script>
     <script>
-        function addLog(m) {
-            const l = document.getElementById('logs');
-            l.innerHTML += `> ${m}<br>`;
-            l.scrollTop = l.scrollHeight;
+        function writeLog(msg) {
+            const logs = document.getElementById('debugLogs');
+            logs.innerHTML += `> ${msg}<br>`;
+            logs.scrollTop = logs.scrollHeight;
         }
 
-        function requestCallScreeningRole() {
-            addLog("بدء طلب دور 'فحص المكالمات'...");
+        function triggerDefaultAppRequest() {
+            writeLog("بدء طلب تعيين التطبيق كافتراضي...");
 
-            if (!window.cordova) {
-                addLog("خطأ: يجب تشغيل التطبيق على هاتف أندرويد.");
+            if (typeof cordova === 'undefined') {
+                writeLog("خطأ: Cordova غير متوفر. جرب على APK.");
                 return;
             }
 
-            // لفتح شاشة اختيار التطبيق الافتراضي (Role Manager)
-            // نستخدم إضافة cordova-plugin-intent أو نفتح الإعدادات العامة
+            // محاولة فتح شاشة Role Manager مباشرة عبر Intent
             if (window.plugins && window.plugins.intentShim) {
-                addLog("محاولة فتح شاشة Role Manager...");
                 window.plugins.intentShim.startActivity({
-                    action: "android.settings.MANAGE_DEFAULT_APPS_SETTINGS"
-                }, () => {}, () => {});
+                    action: "android.app.role.action.REQUEST_ROLE",
+                    extras: {
+                        "android.app.role.extra.ROLE_NAME": "android.app.role.CALL_SCREENING"
+                    }
+                }, 
+                () => { writeLog("تم فتح طلب النظام بنجاح."); },
+                () => { 
+                    writeLog("فشل الطلب المباشر. فتح الإعدادات اليدوية...");
+                    openManualSettings();
+                });
             } else {
-                addLog("يرجى الذهاب إلى: الإعدادات > التطبيقات > التطبيقات الافتراضية > تطبيق تعريف المتصل.");
-                // كحل أخير نفتح إعدادات التطبيق نفسه
-                if(cordova.plugins.settings) cordova.plugins.settings.open("application_details");
+                writeLog("إضافة Intent غير متوفرة. فتح الإعدادات...");
+                openManualSettings();
             }
+        }
 
-            // تحديث الواجهة برمجياً بعد الضغط
-            document.getElementById('shield').classList.add('active');
-            localStorage.setItem('protection_enabled', 'true');
+        function openManualSettings() {
+            if (window.cordova && cordova.plugins.settings) {
+                cordova.plugins.settings.open("manage_default_apps", () => {
+                    writeLog("يرجى اختيار التطبيق في قائمة Caller ID.");
+                }, () => {
+                    writeLog("فشل فتح الإعدادات.");
+                });
+            }
         }
 
         document.addEventListener('deviceready', () => {
-            addLog("النظام جاهز.");
-            if(localStorage.getItem('protection_enabled') === 'true') {
-                document.getElementById('shield').classList.add('active');
-            }
+            writeLog("النظام جاهز للعمل.");
+            // طلب الصلاحيات الأساسية أولاً عند التشغيل
+            const permissions = cordova.plugins.permissions;
+            permissions.requestPermissions([
+                permissions.READ_PHONE_STATE,
+                permissions.ANSWER_PHONE_CALLS,
+                permissions.READ_CALL_LOG
+            ], (s) => writeLog("صلاحيات أندرويد: " + s.hasPermission), null);
         }, false);
     </script>
 </body>
