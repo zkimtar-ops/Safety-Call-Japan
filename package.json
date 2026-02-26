@@ -1,22 +1,26 @@
 {
-  "name": "safety.call.japan",
-  "displayName": "Safety Call Japan",
-  "version": "1.1.0",
-  "description": "Final Stable Build for Call Protection",
+  "name": "com.hathry.callblocker",
+  "displayName": "InternationalCallBlocker",
+  "version": "1.0.0",
+  "description": "تطبيق حظر المكالمات الدولية",
   "main": "index.js",
-  "dependencies": {
-    "cordova-android": "^13.0.0",
-    "cordova-plugin-android-permissions": "^1.1.5",
-    "cordova-plugin-device": "^2.1.0",
-    "cordova-plugin-androidx-adapter": "^1.1.3",
-    "cordova-open-native-settings": "^1.5.5"
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ecosystem:cordova"
+  ],
+  "author": "Your Name",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "cordova-android": "^12.0.0"
   },
   "cordova": {
     "plugins": {
+      "cordova-plugin-calltrap": {},
       "cordova-plugin-android-permissions": {},
-      "cordova-plugin-device": {},
-      "cordova-plugin-androidx-adapter": {},
-      "cordova-open-native-settings": {}
+      "cordova-open-native-settings": {},
+      "cordova-plugin-whitelist": {}
     },
     "platforms": [
       "android"
