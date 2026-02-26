@@ -5,21 +5,19 @@
     
     <content src="index.html" />
     
-    <!-- إضافات الصلاحيات الأساسية -->
     <plugin name="cordova-plugin-android-permissions" spec="^1.1.5" />
     <plugin name="cordova-plugin-device" spec="^2.1.0" />
     <plugin name="cordova-plugin-androidx-adapter" spec="^1.1.3" />
 
     <platform name="android">
-        <!-- التصريح عن الصلاحيات في ملف المانيفست -->
         <config-file target="AndroidManifest.xml" parent="/*">
             <uses-permission android:name="android.permission.READ_PHONE_STATE" />
             <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
             <uses-permission android:name="android.permission.READ_CALL_LOG" />
-            <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
+            <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
+            <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
         </config-file>
 
-        <!-- ربط خدمة فحص المكالمات (Call Screening Service) -->
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <service android:name="com.cordova.plugins.CallScreeningImplementation"
                      android:permission="android.permission.BIND_SCREENING_SERVICE"
