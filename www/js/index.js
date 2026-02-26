@@ -1,34 +1,61 @@
 document.addEventListener('deviceready', onDeviceReady, false);
 
-function onDeviceReady() {
-    console.log('Cordova جاهز للعمل');
-    
-    var toggle = document.getElementById('blockToggle');
-    var statusLabel = document.getElementById('statusLabel');
+let isBlocking = false;
 
-    toggle.addEventListener('change', function() {
-        if (this.checked) {
-            statusLabel.innerText = "الحماية مفعلة";
-            statusLabel.style.color = "#e74c3c";
-            startMonitoring();
-        } else {
-            statusLabel.innerText = "الحماية متوقفة";
-            statusLabel.style.color = "#7f8c8d";
-            stopMonitoring();
-        }
-    });
+function onDeviceReady() {
+    console.log('App is ready');
+    // طلب الأذونات عند تشغيل التطبيق لأول مرة
+    checkPermissions();
 }
 
-function startMonitoring() {
-    // ملاحظة: تحتاج لإضافة Cordova CallTrap Plugin لمراقبة الرقم الوارد
-    window.plugins.CallTrap.onCall(function(state) {
-        // state.number هو رقم المتصل
-        if (state.type === 'ringing') {
-            var number = state.number;
-            if (number.startsWith("+") && !number.startsWith("+966")) { // استبدل 966 بكود بلدك
-                console.log("حظر مكالمة دولية من: " + number);
-                // كود إنهاء المكالمة يتطلب Plugin مخصص مثل 'cordova-plugin-intent' أو تعديل Java
+function toggleService() {
+    isBlocking = !isBlocking;
+    const statusDiv = document.getElementById('status');
+    
+    if (isBlocking) {
+        statusDiv.innerText = "النظام: يعمل الآن ✅";
+        statusDiv.style.color = "#2ecc71";
+        startCallTrap();
+    } else {
+        statusDiv.innerText = "النظام: متوقف ❌";
+        statusDiv.style.color = "#e94560";
+    }
+}
+
+function startCallTrap() {
+    // استخدام Plugin لمراقبة المكالمات
+    if (window.CallTrap) {
+        window.CallTrap.onCall(function(state) {
+            // state: 'ringing', 'offhook', 'idle'
+            if (state.type === 'ringing' && isBlocking) {
+                let incomingNumber = state.number;
+                
+                // منطق الحظر: إذا بدأ بـ + ولم يكن كود دولتك (مثلاً السعودية +966)
+                if (incomingNumber.startsWith('+') && !incomingNumber.startsWith('+966')) {
+                    console.log("حظر مكالمة من: " + incomingNumber);
+                    // ملاحظة: أندرويد الحديث يتطلب أن يكون التطبيق هو الافتراضي لرفض المكالمة
+                    rejectCall();
+                }
             }
-        }
-    });
+        });
+    }
+}
+
+function checkPermissions() {
+    // الأذونات لا تظهر تلقائياً في أندرويد الحديث، يجب طلبها
+    const permissions = cordova.plugins.permissions;
+    const list = [
+        permissions.READ_PHONE_STATE,
+        permissions.READ_CALL_LOG,
+        permissions.ANSWER_PHONE_CALLS
+    ];
+
+    permissions.requestPermissions(list, (status) => {
+        if(!status.hasPermission) console.warn("الأذونات مرفوضة!");
+    }, () => console.error("خطأ في طلب الأذونات"));
+}
+
+function rejectCall() {
+    // محاكاة لرفض المكالمة - برمجياً تحتاج لإضافة Java مخصصة في Cordova
+    // سأذكر لك أدناه كيف تضمن عملها
 }
